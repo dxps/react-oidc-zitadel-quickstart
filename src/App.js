@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import Callback from "./components/Callback";
@@ -6,16 +6,17 @@ import authConfig from "./authConfig";
 import { UserManager, WebStorageStateStore } from "oidc-client-ts";
 
 function App() {
-    const userManager = new UserManager({
+
+    const userManager = useMemo(() => new UserManager({
         userStore: new WebStorageStateStore({ store: window.localStorage }),
         ...authConfig,
-    });
+    }), []);
 
-    function authorize() {
+    function handleLogin() {
         userManager.signinRedirect({ state: "a2123a67ff11413fa19217a9ea0fbad5" });
     }
 
-    function clearAuth() {
+    function handleLogout() {
         userManager.signoutRedirect();
     }
 
@@ -24,30 +25,32 @@ function App() {
 
     useEffect(() => {
         userManager.getUser().then((user) => {
+            console.info(`Got user UserManager:`, user)
             if (user) {
                 setAuthenticated(true);
+                console.info(`setAuthenticated(true) called, authenticated=${authenticated}`)
             } else {
                 setAuthenticated(false);
             }
         });
-    }, [userManager]);
+    }, [authenticated, userManager]);
 
     return (
         <BrowserRouter>
             <Routes>
                 <Route
                     path="/"
-                    element={<Login auth={authenticated} handleLogin={authorize} />}
+                    element={<Login authenticated={authenticated} handleLogin={handleLogin} />}
                 />
                 <Route
                     path="/callback"
                     element={
                         <Callback
-                            auth={authenticated}
-                            setAuth={setAuthenticated}
+                            authenticated={authenticated}
+                            setAuthenticated={setAuthenticated}
                             userInfo={userInfo}
                             setUserInfo={setUserInfo}
-                            handleLogout={clearAuth}
+                            handleLogout={handleLogout}
                             userManager={userManager}
                         />
                     }

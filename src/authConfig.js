@@ -1,6 +1,6 @@
 const authConfig = {
     authority: 'http://localhost:8080/',     // Replace with your issuer URL.
-    client_id: '229664860240150969@fim',     // Replace with your client id.
+    client_id: '230387246979678591@fim',     // Replace with your client id.
     redirect_uri: 'http://localhost:3000/callback',
     response_type: 'code',
     scope: 'openid profile email',

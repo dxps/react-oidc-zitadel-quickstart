@@ -1,35 +1,42 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import authConfig from '../authConfig';
+import { Navigate } from 'react-router-dom';
 
-const Callback = ({ auth, setAuth, userManager, userInfo, setUserInfo, handleLogout }) => {
+const Callback = ({ authenticated, setAuthenticated, userManager, userInfo, setUserInfo, handleLogout }) => {
+
+    console.debug(`[Callback.js] authenticated=${authenticated}, userInfo=`, userInfo)
+
+    const [loginRequired, setLoginRequired] = useState(null);
 
     useEffect(() => {
-        if (auth === null) {
+        if (authenticated === null) {
             userManager.signinRedirectCallback().then((user) => {
+                console.debug(`[Callback.js] Got user=`, user)
                 if (user) {
-                    setAuth(true);
+                    setAuthenticated(true);
                     const access_token = user.access_token;
-                    // Make a request to the user info endpoint using the access token
+                    // Make a request to the userinfo endpoint using the access token.
                     fetch(authConfig.userinfo_endpoint, {
                         headers: {
                             'Authorization': `Bearer ${access_token}`
                         }
                     })
                         .then(response => response.json())
-                        .then(userInfo => {
-                            setUserInfo(userInfo);
-                        });
+                        .then(userInfo => setUserInfo(userInfo))
                 } else {
-                    setAuth(false);
+                    setAuthenticated(false);
                 }
             }).catch((error) => {
-                setAuth(false);
+                console.error(`[Callback.js] userManager.signinRedirectCallback() error:`, error)
+                setAuthenticated(false);
+                // Force the logout.
+                handleLogout();
+                setLoginRequired(true);
             });
         }
-    }, [auth, userManager, setAuth, setUserInfo]);
+    }, [authenticated, userManager, setAuthenticated, setUserInfo, userInfo, handleLogout]);
 
-
-    if (auth === true && userInfo) {
+    if (authenticated === true && userInfo) {
         return (
             <div>
                 <h1>Welcome, {userInfo.name}!</h1>
@@ -42,9 +49,11 @@ const Callback = ({ auth, setAuth, userManager, userInfo, setUserInfo, handleLog
                 <button onClick={handleLogout}>Log out</button>
             </div>
         );
+    } else if (loginRequired) {
+        return <Navigate to="/" />
     }
     else {
-        return <div>Loading...</div>;
+        return <div>Loading user info ...</div>;
     }
 
 };
