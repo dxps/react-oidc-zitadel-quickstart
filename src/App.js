@@ -4,6 +4,7 @@ import Login from "./components/Login";
 import Callback from "./components/Callback";
 import authConfig from "./authConfig";
 import { UserManager, WebStorageStateStore } from "oidc-client-ts";
+import Home from "./components/Home";
 
 function App() {
 
@@ -40,7 +41,12 @@ function App() {
             <Routes>
                 <Route
                     path="/"
-                    element={<Login authenticated={authenticated} handleLogin={handleLogin} />}
+                    element={
+                        <Login
+                            authenticated={authenticated}
+                            handleLogin={handleLogin}
+                        />
+                    }
                 />
                 <Route
                     path="/callback"
@@ -52,6 +58,16 @@ function App() {
                             setUserInfo={setUserInfo}
                             handleLogout={handleLogout}
                             userManager={userManager}
+                        />
+                    }
+                />
+                <Route
+                    path="/home"
+                    element={
+                        <Home
+                            authenticated={authenticated}
+                            userInfo={userInfo}
+                            handleLogout={handleLogout}
                         />
                     }
                 />

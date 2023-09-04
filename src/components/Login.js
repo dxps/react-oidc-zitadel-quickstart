@@ -1,7 +1,12 @@
 import { Navigate } from "react-router-dom";
+// import { CheckSessionIFrame } from "oidc-client-ts";
 
 const Login = ({ authenticated, handleLogin }) => {
+
     console.debug(`[Login.js] authenticated=${authenticated}`)
+
+
+
     return (
         <div>
             {authenticated === null && <div>Login is in progress ...</div>}

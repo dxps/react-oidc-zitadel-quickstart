@@ -27,7 +27,7 @@ const Callback = ({ authenticated, setAuthenticated, userManager, userInfo, setU
                     setAuthenticated(false);
                 }
             }).catch((error) => {
-                console.error(`[Callback.js] userManager.signinRedirectCallback() error:`, error)
+                console.error(`[Callback.js] Having authenticated=${authenticated}, userManager.signinRedirectCallback() error:`, error)
                 setAuthenticated(false);
                 // Force the logout.
                 handleLogout();
@@ -36,19 +36,14 @@ const Callback = ({ authenticated, setAuthenticated, userManager, userInfo, setU
         }
     }, [authenticated, userManager, setAuthenticated, setUserInfo, userInfo, handleLogout]);
 
-    if (authenticated === true && userInfo) {
-        return (
-            <div>
-                <h1>Welcome, {userInfo.name}!</h1>
-                <h2>Your ZITADEL Profile Information</h2>
-                <h3>Name:  {userInfo.name}</h3>
-                <h3>Email: {userInfo.email}</h3>
-                <h3>Email Verified: {userInfo.email_verified ? "Yes" : "No"}</h3>
-                <h3>Locale: {userInfo.locale}</h3>
 
-                <button onClick={handleLogout}>Log out</button>
-            </div>
-        );
+    if (authenticated === true) {
+        if (userInfo) {
+            return <Navigate to="/home" />;
+        } else {
+            // Only try to process a login response if the state exists.
+            // TODO
+        }
     } else if (loginRequired) {
         return <Navigate to="/" />
     }
